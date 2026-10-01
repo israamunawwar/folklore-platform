@@ -224,38 +224,7 @@
                 }
             });
         }
-
-        // فتح مودال التعليقات وجلب البيانات
-        function openCommentModal(itemId) {
-            document.getElementById('modalItemId').value = itemId;
-            const modal = document.getElementById('commentModal');
-            modal.classList.remove('hidden');
-            document.body.style.overflow = 'hidden';
-
-            const list = document.getElementById('commentsList');
-            list.innerHTML = '<p class="text-center text-stone-400">جاري التحميل...</p>';
-
-            fetch(`/comments/${itemId}`).then(r => r.json()).then(comments => {
-                list.innerHTML = comments.length ? '' : '<p class="text-center text-stone-400">لا توجد تعليقات بعد.</p>';
-                comments.forEach(c => {
-                    const stars = '⭐'.repeat(c.rating || 5);
-                    list.innerHTML += `
-                        <div class="border-b border-stone-100 pb-2">
-                            <div class="flex justify-between items-center mb-1">
-                                <p class="font-bold text-stone-800 text-sm">${c.user.name}</p>
-                                <span class="text-[10px] opacity-80">${stars}</span>
-                            </div>
-                            <p class="text-stone-600 text-xs">${c.comment}</p>
-                        </div>`;
-                });
-            });
-        }
-
-        // إغلاق مودال التعليقات
-        function closeCommentModal() {
-            document.getElementById('commentModal').classList.add('hidden');
-            document.body.style.overflow = 'auto';
-        }
     </script>
+    @include('partials.comments-js')
 </body>
 </html>

@@ -115,21 +115,7 @@
                 }
             });
         }
-
-        // وظائف التعليقات
-        function openCommentModal(itemId) {
-            document.getElementById('modalItemId').value = itemId;
-            document.getElementById('commentModal').classList.remove('hidden');
-            fetch(`/comments/${itemId}`).then(r => r.json()).then(comments => {
-                const list = document.getElementById('commentsList');
-                list.innerHTML = comments.length ? '' : '<p class="text-center text-stone-400">لا توجد تعليقات بعد.</p>';
-                comments.forEach(c => {
-                    list.innerHTML += `<div class="border-b pb-2 mb-2"><span class="font-bold text-sm">${c.user.name}</span> <span class="text-amber-500">${'⭐'.repeat(c.rating)}</span><p class="text-stone-600 text-sm">${c.comment}</p></div>`;
-                });
-            });
-        }
-
-        function closeCommentModal() { document.getElementById('commentModal').classList.add('hidden'); }
     </script>
+    @include('partials.comments-js')
 </body>
 </html>
