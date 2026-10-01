@@ -59,10 +59,20 @@
         <p class="mt-3 text-amber-100 text-lg">استكشف واقتني أندر القطع التاريخية</p>
     </header>
 
-    {{-- تنبيهات النظام (رسائل النجاح) --}}
+    {{-- رسائل النظام --}}
     @if(session('success'))
         <div class="max-w-6xl mx-auto mb-6 p-4 bg-green-100 border border-green-200 text-green-800 rounded-xl text-center font-bold">
             {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="max-w-6xl mx-auto mb-6 p-4 bg-red-100 border border-red-200 text-red-800 rounded-xl text-center font-bold">
+            ⚠️ {{ session('error') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="max-w-6xl mx-auto mb-6 p-4 bg-red-100 border border-red-200 text-red-800 rounded-xl text-center font-bold">
+            {{ $errors->first() }}
         </div>
     @endif
 
@@ -93,7 +103,11 @@
 
                             {{-- صورة المنتج --}}
                             <a href="{{ route('heritage.show', $item->id) }}" class="block overflow-hidden h-64">
-                                <img src="{{ asset('storage/' . $item->image) }}" class="w-full h-full object-cover hover:scale-110 transition duration-700">
+                                @if($item->image)
+                                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}" class="w-full h-full object-cover hover:scale-110 transition duration-700">
+                                @else
+                                    <div class="flex items-center justify-center h-full bg-stone-200 text-stone-400">لا توجد صورة</div>
+                                @endif
                             </a>
 
                             {{-- تفاصيل المنتج --}}

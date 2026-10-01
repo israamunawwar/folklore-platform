@@ -16,16 +16,37 @@
     </nav>
 
     <main class="max-w-6xl mx-auto p-6 mt-10">
+    {{-- رسائل النظام --}}
+    @if(session('success'))
+        <div class="mb-6 p-4 bg-green-100 border border-green-200 text-green-800 rounded-xl text-center font-bold">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="mb-6 p-4 bg-red-100 border border-red-200 text-red-800 rounded-xl text-center font-bold">
+            ⚠️ {{ session('error') }}
+        </div>
+    @endif
+    @if($errors->any())
+        <div class="mb-6 p-4 bg-red-100 border border-red-200 text-red-800 rounded-xl text-center font-bold">
+            {{ $errors->first() }}
+        </div>
+    @endif
+
         <div class="bg-white rounded-3xl shadow-xl overflow-hidden grid grid-cols-1 md:grid-cols-2 gap-8">
             {{-- جهة الصورة --}}
             <div class="bg-stone-200 flex items-center justify-center p-4">
-                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}" class="rounded-2xl shadow-lg max-h-[500px] object-cover">
+                @if($item->image)
+                    <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->name }}" class="rounded-2xl shadow-lg max-h-[500px] object-cover">
+                @else
+                    <div class="text-stone-400 py-24">لا توجد صورة</div>
+                @endif
             </div>
 
             {{-- جهة التفاصيل --}}
             <div class="p-8 flex flex-col">
                 <div class="flex justify-between items-start mb-2">
-                    <span class="text-amber-700 font-bold text-sm underline">تراث / {{ $item->category }}</span>
+                    <span class="text-amber-700 font-bold text-sm underline">تراث / {{ \App\Enums\Category::labelFor($item->category) }}</span>
 
                     {{-- زر الإعجاب اللي رجعناه --}}
                     <button onclick="pressLike(this, {{ $item->id }})"
@@ -86,7 +107,7 @@
                     </select>
                 </div>
                 <div class="flex gap-2">
-                    <input type="text" name="comment" placeholder="اكتب تعليقك..." class="flex-1 border rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-amber-500">
+                    <input type="text" name="comment" placeholder="اكتب تعليقك..." class="flex-1 border rounded-xl px-4 py-2 outline-none focus:ring-2 focus:ring-amber-500" required maxlength="500">
                     <button type="submit" class="bg-amber-800 text-white px-4 py-2 rounded-xl font-bold">نشر</button>
                 </div>
             </form>
