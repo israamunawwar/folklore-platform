@@ -61,6 +61,17 @@ class User extends Authenticatable implements FilamentUser
     return in_array($this->role, ['admin', 'moderator', 'publisher']);
 }
 
+    public function likes(): HasMany
+    {
+        return $this->hasMany(Like::class);
+    }
+
+    /** أرقام القطع التي أعجب بها المستخدم (استعلام واحد بدل استعلام لكل بطاقة) */
+    public function likedItemIds(): array
+    {
+        return $this->likes()->pluck('heritage_item_id')->all();
+    }
+
     public function orders(): HasMany
     {
         return $this->hasMany(Order::class);

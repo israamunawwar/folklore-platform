@@ -50,14 +50,14 @@
 
                     {{-- زر الإعجاب اللي رجعناه --}}
                     <button onclick="pressLike(this, {{ $item->id }})"
-                        class="transition {{ auth()->user() && $item->isLikedBy(auth()->user()) ? 'text-red-500' : 'text-stone-400' }}">
+                        class="transition {{ $liked ? 'text-red-500' : 'text-stone-400' }}">
                         <svg xmlns="http://www.w3.org/2000/svg"
-                             class="h-8 w-8 {{ auth()->user() && $item->isLikedBy(auth()->user()) ? 'fill-current' : '' }}"
-                             fill="{{ auth()->user() && $item->isLikedBy(auth()->user()) ? 'currentColor' : 'none' }}"
+                             class="h-8 w-8 {{ $liked ? 'fill-current' : '' }}"
+                             fill="{{ $liked ? 'currentColor' : 'none' }}"
                              viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
                         </svg>
-                        <span class="like-count text-xs block text-center font-bold">{{ $item->likes()->count() }}</span>
+                        <span class="like-count text-xs block text-center font-bold">{{ $item->likes_count }}</span>
                     </button>
                 </div>
 

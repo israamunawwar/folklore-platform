@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\HeritageItem;
+use App\Services\CartService;
 use Illuminate\Http\Request;
 
 /**
@@ -34,9 +35,10 @@ class CartController extends Controller
         return redirect()->back()->with('success', 'تمت إضافة القطعة إلى السلة.');
     }
 
-    public function index()
+    public function index(CartService $carts)
     {
-        $cart = session()->get('cart', []);
+        $cart = $carts->refresh(session()->get('cart', []));
+
         return view('cart.index', compact('cart'));
     }
 

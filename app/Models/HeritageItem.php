@@ -12,9 +12,6 @@ class HeritageItem extends Model
 
     protected $fillable = ['name', 'description', 'category', 'image', 'status', 'user_id', 'price', 'stock'];
 
-    // العداد التلقائي - يُكتب مرة واحدة فقط لكل العلاقات
-    protected $withCount = ['approvedComments', 'likes'];
-
     public function likes(): HasMany
     {
         return $this->hasMany(Like::class);
@@ -30,9 +27,9 @@ class HeritageItem extends Model
         return $this->hasMany(Comment::class);
     }
 
-    public function isLikedBy($user)
+    /** القطع المعتمدة مع عدّادات الإعجاب والتعليقات المقبولة */
+    public function scopeStorefront($query)
     {
-        if (!$user) return false;
-        return $this->likes()->where('user_id', $user->id)->exists();
+        return $query->where('status', 'approved')->withCount(['approvedComments', 'likes']);
     }
 }

@@ -6,6 +6,7 @@ use App\Exceptions\InsufficientStockException;
 use App\Http\Requests\CheckoutRequest;
 use App\Models\HeritageItem;
 use App\Models\Order;
+use App\Services\CartService;
 use App\Models\OrderItem;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,9 +16,9 @@ use Illuminate\Support\Facades\Log;
 class OrderController extends Controller
 {
     // 1. عرض صفحة الدفع (الملخص)
-    public function checkout()
+    public function checkout(CartService $carts)
     {
-        $cart = session()->get('cart', []);
+        $cart = $carts->refresh(session()->get('cart', []));
         if (empty($cart)) {
             return redirect()->route('cart.index')->with('error', 'سلتك فارغة!');
         }

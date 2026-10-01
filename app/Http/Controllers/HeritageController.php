@@ -10,11 +10,14 @@ class HeritageController extends Controller
 {
     public function index(): View
     {
-        $approved = fn (Category $category) => HeritageItem::where('status', 'approved')
+        $approved = fn (Category $category) => HeritageItem::storefront()
             ->where('category', $category->value)
             ->get();
 
+        $likedIds = auth()->check() ? auth()->user()->likedItemIds() : [];
+
         return view('welcome', [
+            'likedIds' => $likedIds,
             'clothing' => $approved(Category::Clothing),
             'tools'    => $approved(Category::Tools),
             'food'     => $approved(Category::Food),
@@ -24,8 +27,9 @@ class HeritageController extends Controller
     public function show($id): View
     {
         // القطع المعتمدة فقط، وإلا 404
-        $item = HeritageItem::where('status', 'approved')->findOrFail($id);
+        $item = HeritageItem::storefront()->findOrFail($id);
+        $liked = auth()->check() && in_array($item->id, auth()->user()->likedItemIds());
 
-        return view('show', compact('item'));
+        return view('show', compact('item', 'liked'));
     }
 }

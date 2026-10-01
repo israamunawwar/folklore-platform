@@ -29,12 +29,4 @@ class Order extends Model
     {
         return $this->belongsTo(User::class);
     }
-
-    protected static function booted()
-    {
-        static::updated(function ($order) {
-
-
-        });
-    }
 }
