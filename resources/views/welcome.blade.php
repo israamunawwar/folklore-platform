@@ -48,6 +48,7 @@
                     </div>
                 @else
                     <a href="{{ route('login') }}" class="text-amber-500 font-bold hover:text-amber-400">تسجيل الدخول</a>
+                    <a href="{{ route('register') }}" class="bg-amber-600 hover:bg-amber-700 text-white px-3 py-1 rounded text-sm font-bold transition">حساب جديد</a>
                 @endauth
             </div>
         </div>

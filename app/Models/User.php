@@ -4,19 +4,17 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-use Filament\Facades\Filament;
+use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 /**
  * @property string $role
  */
-class User extends Authenticatable
+class User extends Authenticatable implements FilamentUser
 {
-
-    use HasRoles;
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
@@ -29,7 +27,6 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'is_admin',
         'role',
         'image',
     ];
@@ -64,20 +61,12 @@ class User extends Authenticatable
     return in_array($this->role, ['admin', 'moderator', 'publisher']);
 }
 
-    // هذه الدالة تتحكم في المكان الذي يذهب إليه المستخدم بعد تسجيل الدخول
-public function getFilamentRedirectUrl(): ?string
+    public function orders(): HasMany
     {
-        // إذا كان المستخدم زبون (الرتبة التي نعطيها عند إنشاء الحساب)
-        if ($this->role === 'customer') {
-            return '/'; // أرسله للصفحة الرئيسية للموقع
-        }
-
-        // إذا كان مديراً أو ناشراً أو مدققاً
-        return '/admin'; // أرسله لداخل لوحة التحكم
+        return $this->hasMany(Order::class);
     }
 
-
-// هذه الدالة تتنفذ تلقائياً عند إنشاء أي مستخدم جديد
+    // هذه الدالة تتنفذ تلقائياً عند إنشاء أي مستخدم جديد
 protected static function booted()
 {
     static::creating(function ($user) {

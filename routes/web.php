@@ -1,11 +1,11 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CommentController;
 use App\Http\Controllers\HeritageController;
 use App\Http\Controllers\LikeController;
 use App\Http\Controllers\OrderController;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 // --- الصفحة الرئيسية وتفاصيل القطعة ---
@@ -37,12 +37,12 @@ Route::post('/like/{itemId}', [LikeController::class, 'toggle'])
     ->middleware(['auth', 'throttle:60,1'])
     ->name('like.toggle');
 
-// --- تسجيل الدخول والخروج (الدخول عبر صفحة Filament) ---
-Route::get('/login', fn () => redirect()->route('filament.admin.auth.login'))->name('login');
+// --- تسجيل دخول وتسجيل الزبائن (لوحة الإدارة لها صفحة دخول Filament مستقلة) ---
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
+    Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:10,1')->name('login.attempt');
+    Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
+    Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:10,1')->name('register.store');
+});
 
-Route::post('/logout', function () {
-    Auth::logout();
-    session()->invalidate();
-    session()->regenerateToken();
-    return redirect('/');
-})->name('logout');
+Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
