@@ -7,27 +7,51 @@ use App\Models\User;
 
 class HeritageItemPolicy
 {
-    // من يستطيع رؤية القائمة (الكل: مدير، مدقق، ناشر)
-    public function viewAny(User $user): bool
-{
-    // الآدمن والمدقق والناشر.. الكل لازم يشوف الصفحة باللوحة
-    return in_array($user->role, ['admin', 'moderator', 'publisher']);
-}
+    private const STAFF = ['admin', 'moderator', 'publisher'];
 
-    // من يستطيع إضافة قطعة (المدير والناشر فقط)
+    public function viewAny(User $user): bool
+    {
+        return in_array($user->role, self::STAFF);
+    }
+
+    public function view(User $user, HeritageItem $item): bool
+    {
+        return $this->update($user, $item);
+    }
+
+    // المدير والناشر فقط ينشئون قطعاً
     public function create(User $user): bool
     {
         return in_array($user->role, ['admin', 'publisher']);
     }
 
-    // من يستطيع التعديل (الكل، ولكن تذكر أننا قفلنا "الحالة" على الناشر برمجياً)
-    public function update(User $user, HeritageItem $heritageItem): bool
+    // الناشر يعدّل قطعه فقط؛ المدير والمدقق يعدّلان الكل
+    public function update(User $user, HeritageItem $item): bool
     {
-        return in_array($user->role, ['admin', 'moderator', 'publisher']);
+        if ($user->role === 'publisher') {
+            return $item->user_id === $user->id;
+        }
+
+        return in_array($user->role, ['admin', 'moderator']);
     }
 
-    // من يستطيع الحذف (المدير فقط - حماية للملفات)
-    public function delete(User $user, HeritageItem $heritageItem): bool
+    // الحذف للمدير فقط (حذف ناعم، فلا تتأثر الطلبات القديمة)
+    public function delete(User $user, HeritageItem $item): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function deleteAny(User $user): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function restore(User $user, HeritageItem $item): bool
+    {
+        return $user->role === 'admin';
+    }
+
+    public function restoreAny(User $user): bool
     {
         return $user->role === 'admin';
     }

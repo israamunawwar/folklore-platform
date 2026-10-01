@@ -24,7 +24,7 @@ class OrderResource extends Resource
     {
         return $form
             ->schema([
-                Forms\Components\Card::make()->schema([
+                Forms\Components\Section::make()->schema([
                     Forms\Components\TextInput::make('order_number')->disabled()->label('رقم الطلب'),
                     Forms\Components\TextInput::make('phone')->label('رقم الهاتف'),
                     Forms\Components\Textarea::make('address')->label('العنوان الكامل')->columnSpanFull(),
@@ -35,7 +35,10 @@ class OrderResource extends Resource
                             'shipped' => 'تم الشحن',
                             'completed' => 'تم التسليم',
                             'cancelled' => 'ملغي',
-                        ]),
+                        ])
+                        ->required()
+                        // الطلب الملغى نهائي، حتى لا يُرجَع المخزون ثم يُعاد تفعيل الطلب
+                        ->disabled(fn (?\App\Models\Order $record) => $record?->order_status === 'cancelled'),
                 ])->columns(2),
             ]);
     }
@@ -53,22 +56,35 @@ class OrderResource extends Resource
                     ->label('رقم الهاتف'),
                 Tables\Columns\TextColumn::make('total_price')
                     ->label('إجمالي المبلغ')
-                    ->money('SYP'),
-                Tables\Columns\BadgeColumn::make('order_status')
+                    ->money('USD'),
+                Tables\Columns\TextColumn::make('order_status')
                     ->label('حالة الطلب')
-                    ->colors([
-                        'primary',
-                        'warning' => 'processing',
-                        'success' => 'completed',
-                        'danger' => 'cancelled',
-                    ]),
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'processing' => 'warning',
+                        'shipped' => 'info',
+                        'completed' => 'success',
+                        'cancelled' => 'danger',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('تاريخ الطلب')
                     ->dateTime(),
             ])
             ->filters([
-                //
-            ]);
+                Tables\Filters\SelectFilter::make('order_status')
+                    ->label('حالة الطلب')
+                    ->options([
+                        'processing' => 'قيد المعالجة',
+                        'shipped' => 'تم الشحن',
+                        'completed' => 'تم التسليم',
+                        'cancelled' => 'ملغي',
+                    ]),
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getRelations(): array
@@ -85,10 +101,5 @@ class OrderResource extends Resource
             'create' => Pages\CreateOrder::route('/create'),
             'edit' => Pages\EditOrder::route('/{record}/edit'),
         ];
-    }
-
-    public static function canViewAny(): bool
-    {
-        return auth()->user() && auth()->user()->role === 'admin';
     }
 }

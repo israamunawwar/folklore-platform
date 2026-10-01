@@ -3,65 +3,40 @@
 namespace App\Policies;
 
 use App\Models\User;
-use Illuminate\Auth\Access\Response;
 
 class UserPolicy
 {
-    /**
-     * Determine whether the user can view any models.
-     */
-   public function viewAny(User $user): bool
-{
-    // فقط المدير يرى قائمة المستخدمين ويعدل رتبهم
-    return $user->role === 'admin';
-}
+    // إدارة المستخدمين للمدير فقط
+    public function viewAny(User $user): bool
+    {
+        return $user->role === 'admin';
+    }
 
-    /**
-     * Determine whether the user can view the model.
-     */
     public function view(User $user, User $model): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
-    /**
-     * Determine whether the user can create models.
-     */
     public function create(User $user): bool
-{
-    // فقط الآدمن يقدر يكريت حسابات ويعطي صلاحيات
-    return $user->role === 'admin';
-}
+    {
+        return $user->role === 'admin';
+    }
 
-    /**
-     * Determine whether the user can update the model.
-     */
     public function update(User $user, User $model): bool
     {
-        return false;
+        return $user->role === 'admin';
     }
 
-    /**
-     * Determine whether the user can delete the model.
-     */
+    // لا يحذف المدير نفسه، ولا مستخدماً لديه طلبات (للحفاظ على السجلات)
     public function delete(User $user, User $model): bool
     {
-        return false;
+        return $user->role === 'admin'
+            && $user->id !== $model->id
+            && ! $model->orders()->exists();
     }
 
-    /**
-     * Determine whether the user can restore the model.
-     */
-    public function restore(User $user, User $model): bool
+    public function deleteAny(User $user): bool
     {
-        return false;
-    }
-
-    /**
-     * Determine whether the user can permanently delete the model.
-     */
-    public function forceDelete(User $user, User $model): bool
-    {
-        return false;
+        return $user->role === 'admin';
     }
 }

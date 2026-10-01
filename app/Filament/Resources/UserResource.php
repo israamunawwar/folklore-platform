@@ -108,6 +108,7 @@ protected static ?int $navigationSort = 2;
                     'admin' => 'مدير',
                     'moderator' => 'مدقق',
                     'publisher' => 'ناشر',
+                    'customer' => 'زبون',
                 ]),
         ])
         ->actions([

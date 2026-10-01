@@ -27,7 +27,20 @@ protected static ?int $navigationSort = 4;
     {
         return $form
             ->schema([
-                //
+                Forms\Components\Section::make()->schema([
+                    Forms\Components\Placeholder::make('author')
+                        ->label('المستخدم')
+                        ->content(fn (?\App\Models\Comment $record) => $record?->user?->name),
+                    Forms\Components\Placeholder::make('item')
+                        ->label('القطعة التراثية')
+                        ->content(fn (?\App\Models\Comment $record) => $record?->heritageItem?->name),
+                    Forms\Components\Textarea::make('comment')->label('التعليق')->disabled()->columnSpanFull(),
+                    Forms\Components\TextInput::make('rating')->label('التقييم')->disabled(),
+                    Forms\Components\Select::make('status')
+                        ->label('الحالة')
+                        ->options(self::statuses())
+                        ->required(),
+                ])->columns(2),
             ]);
     }
 
@@ -43,18 +56,13 @@ protected static ?int $navigationSort = 4;
             // عرض الحالة بلون (أصفر للانتظار، أخضر للمقبول)
             Tables\Columns\SelectColumn::make('status')
                 ->label('الحالة')
-                ->options([
-                    'pending' => 'قيد الانتظار',
-                    'approved' => 'مقبول',
-                ]),
+                ->options(self::statuses()),
         ])
         ->filters([
             // فلتر عشان المدير يشوف بس اللي "قيد الانتظار" بسرعة
             Tables\Filters\SelectFilter::make('status')
-                ->options([
-                    'pending' => 'قيد الانتظار',
-                    'approved' => 'مقبول',
-                ]),
+                ->label('الحالة')
+                ->options(self::statuses()),
         ])
         ->actions([
             Tables\Actions\EditAction::make(),
@@ -73,14 +81,16 @@ protected static ?int $navigationSort = 4;
     {
         return [
             'index' => Pages\ListComments::route('/'),
-            'create' => Pages\CreateComment::route('/create'),
             'edit' => Pages\EditComment::route('/{record}/edit'),
         ];
     }
-public static function canViewAny(): bool
-{
-    // هاد السطر بيسمح فقط للأدمن والمدقق يشوفوا قسم التعليقات
-    return auth()->user()->role === 'admin' || auth()->user()->role === 'moderator';
-}
 
+    public static function statuses(): array
+    {
+        return [
+            'pending' => 'قيد الانتظار',
+            'approved' => 'مقبول',
+            'rejected' => 'مرفوض',
+        ];
+    }
 }
