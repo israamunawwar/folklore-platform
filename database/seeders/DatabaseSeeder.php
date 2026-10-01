@@ -3,39 +3,40 @@
 namespace Database\Seeders;
 
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * حسابات الموظفين الأولية. كلمة المرور من SEED_PASSWORD في .env،
+     * وفي الإنتاج لا نقبل كلمة مرور افتراضية.
      */
     public function run(): void
-{
-    \App\Models\User::create([
-        'name' => 'admin',
-        'email' => 'admin@admin.com',
-        'password' => bcrypt('12345678'),
-        'role' => 'admin',
-        // أضف أي حقول أخرى للأدمن مثل is_admin إذا كانت موجودة عندك
-    ]);
-    // إنشاء حساب المدقق
-    \App\Models\User::create([
-        'name' => 'المدقق',
-        'email' => 'moderator@test.com',
-        'password' => bcrypt('12345678'),
-        'role' => 'moderator',
-    ]);
+    {
+        $password = env('SEED_PASSWORD');
 
-    // إنشاء حساب الناشر
-    \App\Models\User::create([
-        'name' => 'الناشر الوحيد',
-        'email' => 'publisher@test.com',
-        'password' => bcrypt('12345678'),
-        'role' => 'publisher',
-    ]);
- }
+        if (! $password) {
+            if (app()->isProduction()) {
+                $this->command?->error('حدد SEED_PASSWORD في .env قبل تشغيل الـ seeder في الإنتاج.');
+
+                return;
+            }
+
+            $password = 'password'; // للتطوير المحلي فقط
+        }
+
+        $accounts = [
+            ['admin', 'admin@admin.com', 'admin'],
+            ['المدقق', 'moderator@test.com', 'moderator'],
+            ['الناشر', 'publisher@test.com', 'publisher'],
+        ];
+
+        foreach ($accounts as [$name, $email, $role]) {
+            $user = User::firstOrNew(['email' => $email]);
+            $user->name = $name;
+            $user->password = $password;
+            $user->role = $role;
+            $user->save();
+        }
+    }
 }
