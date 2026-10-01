@@ -28,9 +28,13 @@
         <div class="flex justify-between items-center mb-8 border-b pb-4">
             <h1 class="text-3xl font-bold text-amber-900">🛒 سلة مشترياتك</h1>
             @if(count($cart) > 0)
-                <a href="{{ route('cart.clear') }}" class="text-red-500 hover:text-red-700 text-sm font-bold border border-red-200 px-3 py-1 rounded-lg hover:bg-red-50 transition">
-                    🗑️ إفراغ السلة
-                </a>
+                <form action="{{ route('cart.clear') }}" method="POST">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="text-red-500 hover:text-red-700 text-sm font-bold border border-red-200 px-3 py-1 rounded-lg hover:bg-red-50 transition">
+                        🗑️ إفراغ السلة
+                    </button>
+                </form>
             @endif
         </div>
 
@@ -43,7 +47,11 @@
                     <div class="flex items-center justify-between border-b pb-6">
                         {{-- معلومات المنتج (يمين) --}}
                         <div class="flex items-center gap-4">
-                            <img src="{{ asset('storage/' . $details['image']) }}" class="w-20 h-20 rounded-xl object-cover shadow-sm">
+                            @if(!empty($details['image']))
+                                <img src="{{ asset('storage/' . $details['image']) }}" alt="{{ $details['name'] }}" class="w-20 h-20 rounded-xl object-cover shadow-sm">
+                            @else
+                                <div class="w-20 h-20 rounded-xl bg-stone-200"></div>
+                            @endif
                             <div>
                                 <h3 class="font-bold text-lg text-stone-800">{{ $details['name'] }}</h3>
                                 <p class="text-sm text-stone-500">سعر الوحدة: {{ $details['price'] }} $</p>
