@@ -9,4 +9,11 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateHeritageItem extends CreateRecord
 {
     protected static string $resource = HeritageItemResource::class;
+
+    protected function mutateFormDataBeforeCreate(array $data): array
+    {
+        $data['user_id'] = auth()->id();
+
+        return $data;
+    }
 }

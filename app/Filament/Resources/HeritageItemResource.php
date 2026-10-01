@@ -9,6 +9,9 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use App\Enums\Category;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class HeritageItemResource extends Resource
 {
@@ -49,11 +52,7 @@ class HeritageItemResource extends Resource
                         // القائمة المنسدلة للتصنيفات
                         Forms\Components\Select::make('category')
                             ->label('تصنيف التراث')
-                            ->options([
-                                'clothing' => 'أزياء وحلي',   // القيمة في القاعدة => الاسم للعرض
-                                'tools'    => 'الكتب والروايات', // القسم الجديد
-                                'food'     => 'أكلات شعبية',
-                            ])
+                            ->options(Category::options())
                             ->required(),
 
                         // حقل الوصف الطويل
@@ -98,12 +97,7 @@ class HeritageItemResource extends Resource
                         'food'     => 'warning', // برتقالي
                         default    => 'gray',
                     })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'clothing' => 'أزياء وحلي',
-                        'tools'    => 'الكتب والروايات',
-                        'food'     => 'أكلات شعبية',
-                        default    => $state,
-                    }),
+                    ->formatStateUsing(fn (string $state): string => Category::labelFor($state)),
 
                 // حقل تغيير الحالة (Pending/Approved) مباشرة من الجدول
                 Tables\Columns\SelectColumn::make('status')
@@ -126,23 +120,34 @@ class HeritageItemResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('category')
                     ->label('تصفية حسب الصنف')
-                    ->options([
-                        'clothing' => 'أزياء وحلي',
-                        'tools'    => 'الكتب والروايات',
-                        'food'     => 'أكلات شعبية',
-                    ]),
+                    ->options(Category::options()),
+                Tables\Filters\TrashedFilter::make()->label('المحذوفات'),
             ])
             // --- العمليات (Edit/Delete) ---
             ->actions([
                 Tables\Actions\EditAction::make(), // زر التعديل
-                Tables\Actions\DeleteAction::make(), // زر الحذف
+                Tables\Actions\DeleteAction::make(), // حذف ناعم
+                Tables\Actions\RestoreAction::make(), // استرجاع
             ])
             // --- العمليات الجماعية (Bulk Actions) ---
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(), // حذف مجموعة مختارة
+                    Tables\Actions\RestoreBulkAction::make(),
                 ]),
             ]);
+    }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $query = parent::getEloquentQuery()->withoutGlobalScopes([SoftDeletingScope::class]);
+
+        // الناشر يرى قطعه فقط
+        if (auth()->user()?->role === 'publisher') {
+            $query->where('user_id', auth()->id());
+        }
+
+        return $query;
     }
 
     // لربط الجداول ببعضها مستقبلاً (مثل التعليقات)
