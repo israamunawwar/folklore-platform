@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exceptions\InsufficientStockException;
+use App\Http\Requests\CheckoutRequest;
 use App\Models\HeritageItem;
 use App\Models\Order;
 use App\Models\OrderItem;
@@ -24,7 +25,7 @@ class OrderController extends Controller
     }
 
     // 2. معالجة الطلب: الخصم الوحيد من المخزون، والأسعار من قاعدة البيانات
-    public function processCheckout(Request $request)
+    public function processCheckout(CheckoutRequest $request)
     {
         $cart = session()->get('cart', []);
 
@@ -32,12 +33,12 @@ class OrderController extends Controller
             return redirect()->route('cart.index')->with('error', 'السلة فارغة، لا يمكن إتمام الطلب');
         }
 
-        $fullAddress = "المحافظة: " . $request->governorate .
-                       " | المنطقة: " . $request->city .
-                       " | التفاصيل: " . $request->address_details;
+        $data = $request->validated();
+
+        $fullAddress = "المحافظة: {$data['governorate']} | المنطقة: {$data['city']} | التفاصيل: {$data['address_details']}";
 
         try {
-            $order = DB::transaction(function () use ($cart, $request, $fullAddress) {
+            $order = DB::transaction(function () use ($cart, $data, $fullAddress) {
                 $total = 0;
                 $lines = [];
 
@@ -68,7 +69,7 @@ class OrderController extends Controller
                     'user_id'        => Auth::id(),
                     'order_number'   => 'ORD-' . strtoupper(uniqid()),
                     'total_price'    => $total,
-                    'phone'          => $request->phone,
+                    'phone'          => $data['phone'],
                     'address'        => $fullAddress,
                     'payment_status' => 'pending', // دفع عند الاستلام
                     'order_status'   => 'processing',
