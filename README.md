@@ -1,59 +1,76 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🏺 Folklore Platform — Heritage Marketplace
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+An e-commerce platform for traditional heritage items — clothing & jewelry, folk food, and books — with a moderation workflow so every item and review is checked before it goes live.
 
-## About Laravel
+## ✨ Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+**Customers**
+- Browse approved items by category and open an item's detail page
+- Like items and leave a 1–5 ★ review (reviews appear after moderation)
+- Session-based shopping cart with live stock limits
+- Checkout with cash on delivery (phone, governorate/city and address validation)
+- Own register / login pages
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+**Admin panel (Filament 3, staff only)**
+- Role-based access: **admin**, **moderator**, **publisher**
+- Publishers add items (pending) and edit only their own; moderators/admins approve or reject them
+- Review moderation: pending / approved / rejected
+- Order management (status changes; cancelling an order restores stock once)
+- User management (admin only)
+- Items are soft-deleted, so past orders keep their history
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+**Backend design**
+- Stock is deducted **once**, at checkout, inside a DB transaction with row locks
+- Order prices are read from the database, never from the session
+- Policies for every admin resource; `canAccessPanel` enforced via `FilamentUser`
+- Feature tests for checkout/stock, validation, access control and auth
 
-## Learning Laravel
+## 🛠️ Tech Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+Laravel 12 · PHP 8.2+ · Filament 3 · Blade + Tailwind (CDN) · SQLite (default) / MySQL
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 Getting Started
 
-## Laravel Sponsors
+```bash
+git clone https://github.com/israamunawwar/folklore-platform.git
+cd folklore-platform
+composer install
+npm install && npm run build
+cp .env.example .env
+php artisan key:generate
+touch database/database.sqlite        # Windows: type nul > database\database.sqlite
+php artisan migrate --seed
+php artisan storage:link
+php artisan serve
+```
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- Store: http://localhost:8000
+- Admin panel: http://localhost:8000/admin (staff login)
 
-### Premium Partners
+### Seeded staff accounts
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+| Role | Email |
+|---|---|
+| Admin | admin@admin.com |
+| Moderator | moderator@test.com |
+| Publisher | publisher@test.com |
 
-## Contributing
+The password comes from `SEED_PASSWORD` in `.env`. If it is empty, the seeder uses `password` in local environments and **refuses to run in production**.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+## ✅ Tests
 
-## Code of Conduct
+```bash
+php artisan test
+```
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+## 🗺️ Roadmap
 
-## Security Vulnerabilities
+- REST API (Laravel Sanctum is already installed)
+- Persist the cart in the database
+- Customer order history page and order status notifications
+- Sales / low-stock dashboard widgets
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## 👥 Team
 
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+- **Mahmoud Ghannam**
+- **Israa Munawwar**
