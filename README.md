@@ -1,5 +1,5 @@
 # 🏺 Folklore Platform — Heritage Marketplace
-
+![Tests](https://github.com/israamunawwar/folklore-platform/actions/workflows/tests.yml/badge.svg)
 An e-commerce platform for traditional heritage items — clothing & jewelry, folk food, and books — with a moderation workflow so every item and review is checked before it goes live.
 
 ## ✨ Features
